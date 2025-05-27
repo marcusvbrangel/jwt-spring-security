@@ -16,16 +16,50 @@ select * from users_roles
 
 --------------------------------------------------------------------------
 
-eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJqd3Mtc2VjLWFwaSIsImlhdCI6MTc0ODMwNjU3NSwiZXhwIjoxNzQ4NzM4NTc1LCJzdWIiOiJuZXRtYXJ2aW5AZ21haWwuY29tIiwiYW5vIjoiMjAyNSIsInJvbGVzIjpbIlJPTEVfQ1VTVE9NRVIiXX0.QyZE79MeCJZfFkzVoC2zx2cFs5z0Ul_tfalJz1jYEAo
 
 --------------------------------------------------------------------------
 
+No seu projeto, tudo que foi implementado é necessário para um fluxo JWT customizado no Spring Boot.
+O Spring Security não fornece, por padrão, geração/validação de tokens JWT nem filtro JWT pronto — ele só oferece a
+infraestrutura para você plugar essas lógicas.
+
+O que você implementou e que o Spring não fornece pronto:
+
+
+JwtTokenService: geração e validação do token JWT.
+JwtAuthenticationFilter: filtro para extrair e validar o token da requisição.
+UserDetailsImpl/UserDetailsServiceImpl: adaptação do seu modelo de usuário para o padrão do Spring Security.
+Essas implementações são comuns e necessárias. O Spring Security só fornece suporte para autenticação baseada em sessão,
+OAuth2, etc., mas para JWT customizado, é assim mesmo.
+
+Resumo:
+Nada do que você fez é desnecessário ou já fornecido pronto pelo Spring Security ou pela biblioteca JWT. Seu código
+está alinhado com as práticas recomendadas para JWT customizado em Spring Boot.
 
 
 
 --------------------------------------------------------------------------
 
+Seu projeto está bem estruturado e segue boas práticas comuns em aplicações Spring Boot com autenticação JWT.
+Veja alguns pontos positivos:
 
+
+Organização: Os pacotes estão bem separados (config, controller, dto, model, repository, service), facilitando a
+manutenção e entendimento.
+Boas práticas: Uso correto de DTOs, injeção de dependências via construtor, uso de @Service, @Repository, e @RestController.
+Segurança: Implementação de filtro JWT customizado, configuração de endpoints públicos e protegidos, uso de PasswordEncoder
+seguro (BCrypt).
+Lombok: Reduz boilerplate, mas lembre-se de garantir que o plugin está ativo no IDE de todos do time.
+Exceções: O fluxo de autenticação não quebra com tokens inválidos, apenas loga o erro, o que é recomendado.
+Sugestões de melhoria:
+
+
+Centralizar mensagens de erro e logs usando um logger (ex: SLF4J) ao invés de System.out.println.
+Tratar exceções específicas ao invés de RuntimeException genérica.
+Adicionar testes automatizados para controllers e serviços.
+Documentar endpoints (ex: Swagger/OpenAPI).
+No geral, está de acordo com o que empresas esperam para projetos desse tipo. Pequenos ajustes podem deixá-lo ainda mais
+robusto e profissiona
 
 
 --------------------------------------------------------------------------
