@@ -51,14 +51,6 @@ public class UserService {
     // Método responsável por criar um usuário
     public void createUser(CreateUserDto createUserDto) {
 
-        // Cria um novo usuário com os dados fornecidos
-//        User newUser = new User();
-//        newUser.setEmail(createUserDto.email());
-//        newUser.setPassword(securityConfig.passwordEncoder().encode(createUserDto.password()));
-//        Role role = new Role();
-//        role.
-//        newUser.setRoles(List.of(Role.builder().name(createUserDto.role()).build()));
-
         User newUser = User.builder()
                 .email(createUserDto.email())
                 // Codifica a senha do usuário com o algoritmo bcrypt

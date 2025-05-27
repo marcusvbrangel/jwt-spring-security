@@ -16,6 +16,56 @@ select * from users_roles
 
 --------------------------------------------------------------------------
 
+https://jwt.io/
+
+
+Paste a JWT below that you'd like to decode, validate, and verify.
+Generate example
+Encoded value:
+
+eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJqd3Mtc2VjLWFwaSIsImlhdCI6MTc0ODM3MDYyNywiZXhwIjoxNzQ4ODAyNjI3LCJzdWIiOiJqb3NlQGdtYWlsLmNvbSIsImFubyI6IjIwMjUiLCJyb2xlcyI6WyJST0xFX0FETUlOSVNUUkFUT1IiXX0.B7Td-13IhA0VxCUHP9PPMi0zXb5YwmZ-nVTzMHeQuro
+
+
+
+Decoded Header:
+
+{
+  "alg": "HS256",
+  "typ": "JWT"
+}
+
+
+
+Decoded Payload:
+
+{
+  "iss": "jws-sec-api",
+  "iat": 1748370627,
+  "exp": 1748802627,
+  "sub": "jose@gmail.com",
+  "ano": "2025",
+  "roles": [
+    "ROLE_ADMINISTRATOR"
+  ]
+}
+
+
+
+JWT Signature Verification:
+
+optional
+
+
+
+
+
+
+
+
+
+
+
+
 
 --------------------------------------------------------------------------
 
@@ -64,7 +114,234 @@ robusto e profissiona
 
 --------------------------------------------------------------------------
 
+No seu projeto, as responsabilidades estão divididas assim:
 
+Funcionalidades realizadas de forma nativa pelo Spring Security:
+
+
+Gerenciamento do contexto de autenticação e autorização.
+Controle de acesso a endpoints via anotações e configuração (hasRole, authenticated, etc).
+Integração com filtros de segurança e ciclo de vida da requisição.
+Criptografia de senha com PasswordEncoder (ex: BCrypt).
+Interface e ciclo de autenticação (AuthenticationManager, UserDetailsService).
+Funcionalidades NÃO executadas de forma nativa pelo Spring Security/JWT:
+
+
+Geração de tokens JWT.
+Validação e parsing de tokens JWT.
+Filtro para extrair e validar JWT do header Authorization.
+Conversão do token JWT em autenticação no contexto do Spring.
+Funcionalidades implementadas de forma programática no seu projeto:
+
+
+Classe JwtTokenService: geração e validação do token JWT.
+Classe JwtAuthenticationFilter: filtro customizado para processar o JWT em cada requisição.
+Classe UserDetailsImpl e UserDetailsServiceImpl: adaptação do seu modelo de usuário para o padrão do Spring Security.
+Lógica de criação de usuário e atribuição de roles.
+DTOs para login, criação de usuário e retorno de token.
+Resumindo: Spring Security cuida do fluxo de autenticação/autorização, mas tudo relacionado a
+JWT (geração, validação, filtro) foi implementado manualmente, pois não é fornecido pronto.
+
+
+
+--------------------------------------------------------------------------
+
+É normal ter dúvidas sobre as responsabilidades de cada parte em um projeto Spring Security com JWT.
+Veja um resumo prático:
+
+Responsabilidade do Spring Security (nativo):
+
+
+Gerenciar autenticação e autorização.
+Proteger rotas/endpoints.
+Integrar filtros de segurança.
+Fornecer interfaces como UserDetailsService, AuthenticationManager, etc.
+Gerenciar contexto de segurança (usuário autenticado, roles).
+Responsabilidade do JWT (token):
+
+
+Ser um formato de token seguro e portável.
+Permitir transportar informações (claims) de forma assinada.
+Não faz autenticação/autorização sozinho, apenas carrega dados.
+Responsabilidade do desenvolvedor (você):
+
+
+Gerar e validar tokens JWT (ex: JwtTokenService).
+Implementar filtro para extrair e validar JWT das requisições (ex: JwtAuthenticationFilter).
+Adaptar seu modelo de usuário para o padrão do Spring (UserDetailsImpl, UserDetailsServiceImpl).
+Definir regras de acesso e roles.
+Codificar/descodificar senhas.
+Resumo:
+Spring Security cuida do fluxo de segurança, mas tudo relacionado a JWT (geração, validação, filtro) é
+sua responsabilidade. O JWT é só o formato do token, não faz autenticação sozinho. Você conecta tudo isso no seu código.
+
+
+--------------------------------------------------------------------------
+
+
+Segue um fluxo explicativo detalhado dos principais casos de uso do seu sistema Spring Security + JWT,
+mostrando o passo a passo, responsabilidades e interações entre os componentes, tanto para sucesso quanto para falha.
+
+<hr></hr>
+1. Registro de Usuário (Cadastro)
+Fluxo de sucesso:
+
+
+Cliente envia um POST /users com email, senha e role.
+UserController recebe a requisição e chama UserService.createUser.
+UserService:
+Codifica a senha usando o PasswordEncoder do SecurityConfig.
+Cria um novo objeto User com os dados e role.
+Salva o usuário no banco via UserRepository.
+UserController retorna 201 CREATED.
+Fluxo de falha:
+
+
+Se o email já existir, o banco lança exceção de unicidade.
+Se faltar algum campo, pode ocorrer erro de validação.
+O controller retorna erro apropriado (ex: 400 Bad Request ou 409 Conflict).
+<hr></hr>
+2. Login (Autenticação)
+Fluxo de sucesso:
+
+
+Cliente envia um POST /users/login com email e senha.
+UserController chama UserService.authenticateUser.
+UserService:
+Cria um UsernamePasswordAuthenticationToken com email e senha.
+Chama o AuthenticationManager para autenticar.
+AuthenticationManager:
+Usa o UserDetailsServiceImpl para buscar o usuário pelo email.
+Compara a senha informada com a senha codificada usando o PasswordEncoder.
+Se válido, retorna um Authentication com o principal (UserDetailsImpl).
+UserService:
+Gera um JWT com JwtTokenService.generateToken.
+Retorna o token para o controller.
+UserController retorna o token JWT no corpo da resposta.
+Fluxo de falha:
+
+
+Se email não existe, UserDetailsServiceImpl lança exceção.
+Se senha inválida, autenticação falha.
+O controller retorna 401 Unauthorized.
+<hr></hr>
+3. Acesso a Endpoints Protegidos
+Fluxo de sucesso:
+
+
+Cliente envia requisição para endpoint protegido (ex: GET /users/test) com header Authorization: Bearer <token>.
+JwtAuthenticationFilter (registrado na cadeia de filtros):
+Extrai o token do header.
+Usa JwtTokenService.getSubjectFromToken para validar e extrair o email.
+Busca o usuário no banco via UserRepository.
+Cria um UserDetailsImpl e autentica no contexto do Spring (SecurityContextHolder).
+Spring Security verifica as permissões do usuário para o endpoint.
+Controller executa a lógica e retorna resposta.
+Fluxo de falha:
+Token ausente, inválido ou expirado: filtro não autentica, request segue sem usuário autenticado.
+Usuário não encontrado: request segue sem autenticação.
+Permissão insuficiente: Spring retorna 403 Forbidden.
+Sem autenticação: Spring retorna 401 Unauthorized.
+<hr></hr>
+4. Acesso a Endpoints Públicos
+Endpoints como /users e /users/login são liberados na configuração (permitAll()).
+Não passam pelo filtro de autenticação JWT.
+Qualquer cliente pode acessar.
+<hr></hr>
+5. Resumo das Responsabilidades
+Spring Security: Gerencia autenticação, autorização, contexto de segurança, ciclo de vida das requisições.
+JwtAuthenticationFilter: Extrai, valida e autentica o usuário a partir do JWT.
+JwtTokenService: Gera e valida tokens JWT.
+UserDetailsServiceImpl: Busca usuário no banco para autenticação.
+UserDetailsImpl: Adapta o usuário para o padrão do Spring Security.
+UserService: Orquestra cadastro e login.
+Controllers: Recebem requisições e retornam respostas.
+<hr></hr>
+6. Fluxo Visual (Resumido)
+
+
+
+[Cliente] -> [Controller] -> [Service] -> [Repository] -> [Banco]
+         \-> [Spring Security] -> [JwtAuthenticationFilter] -> [JwtTokenService]
+
+
+
+--------------------------------------------------------------------------
+
+O retorno para o usuário no Postman depende do endpoint acessado e do sucesso ou falha da operação.
+Veja exemplos práticos para cada caso:
+
+<hr></hr> 1. Cadastro de Usuário (POST /users):
+
+
+Sucesso:
+Status: 201 Created
+Corpo: vazio
+
+
+Falha (ex: email já existe):
+Status: 400 Bad Request ou 409 Conflict
+Corpo: mensagem de erro
+
+
+<hr></hr> 2. Login (POST /users/login):
+
+
+Sucesso:
+Status: 200 OK
+Corpo:
+
+
+{
+  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+}
+Falha (credenciais inválidas):
+Status: 401 Unauthorized
+Corpo: mensagem de erro
+
+
+<hr></hr> 3. Endpoint Protegido (GET /users/test):
+
+
+Com token válido:
+Status: 200 OK
+Corpo:
+
+
+"Autenticado com sucesso"
+Sem token ou token inválido:
+Status: 401 Unauthorized
+Corpo: mensagem de erro
+
+
+Sem permissão:
+Status: 403 Forbidden
+Corpo: mensagem de erro
+
+
+<hr></hr> 4. Endpoint Público (POST /users, POST /users/login):
+
+
+Sempre acessível, conforme exemplos acima.
+<hr></hr> Resumo:
+O usuário recebe status HTTP e mensagens claras conforme o resultado de cada etapa do fluxo.
+O token JWT só é retornado no login bem-sucedido. Para endpoints protegidos, o token deve ser enviado no
+header Authorization: Bearer <token>.
+
+
+--------------------------------------------------------------------------
+
+
+
+
+
+--------------------------------------------------------------------------
+
+
+
+
+
+--------------------------------------------------------------------------
 
 
 
@@ -84,11 +361,6 @@ robusto e profissiona
 
 
 
---------------------------------------------------------------------------
-
-
-
-
 
 --------------------------------------------------------------------------
 
@@ -97,6 +369,13 @@ robusto e profissiona
 
 
 --------------------------------------------------------------------------
+
+
+
+
+
+--------------------------------------------------------------------------
+
 
 
 
