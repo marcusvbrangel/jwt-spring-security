@@ -1,5 +1,5 @@
 package com.mvbr.jwtspringsecurity.dto;
 
-public record RecoveryJwtTokenDto(
+public record AuthenticateUserResponse(
         String token
 ) {}

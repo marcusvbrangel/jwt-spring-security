@@ -1,8 +1,10 @@
 package com.mvbr.jwtspringsecurity.controller;
 
-import com.mvbr.jwtspringsecurity.dto.CreateUserDto;
-import com.mvbr.jwtspringsecurity.dto.LoginUserDto;
-import com.mvbr.jwtspringsecurity.dto.RecoveryJwtTokenDto;
+import com.mvbr.jwtspringsecurity.dto.AuthenticateUserRequest;
+import com.mvbr.jwtspringsecurity.dto.AuthenticateUserResponse;
+import com.mvbr.jwtspringsecurity.dto.CreateUserRequest;
+import com.mvbr.jwtspringsecurity.dto.CreateUserResponse;
+import com.mvbr.jwtspringsecurity.service.AuthService;
 import com.mvbr.jwtspringsecurity.service.UserService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
@@ -17,22 +19,25 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/users")
 public class UserController {
 
+    private final AuthService authService;
     private final UserService userService;
 
-    public UserController(UserService userService) {
+    public UserController(AuthService authService, UserService userService) {
+        this.authService = authService;
         this.userService = userService;
     }
 
     @PostMapping("/login")
-    public ResponseEntity<RecoveryJwtTokenDto> authenticateUser(@Valid @RequestBody LoginUserDto loginUserDto) {
-        RecoveryJwtTokenDto token = userService.authenticateUser(loginUserDto);
+    public ResponseEntity<AuthenticateUserResponse> authenticateUser(
+            @Valid @RequestBody AuthenticateUserRequest authenticateUserRequest) {
+        AuthenticateUserResponse token = authService.authenticateUser(authenticateUserRequest);
         return new ResponseEntity<>(token, HttpStatus.OK);
     }
 
     @PostMapping
-    public ResponseEntity<Void> createUser(@Valid @RequestBody CreateUserDto createUserDto) {
-        userService.createUser(createUserDto);
-        return new ResponseEntity<>(HttpStatus.CREATED);
+    public ResponseEntity<CreateUserResponse> createUser(@Valid @RequestBody CreateUserRequest createUserRequest) {
+        CreateUserResponse createUserResponse = userService.createUser(createUserRequest);
+        return new ResponseEntity<>(createUserResponse, HttpStatus.CREATED);
     }
 
     @GetMapping("/test")
