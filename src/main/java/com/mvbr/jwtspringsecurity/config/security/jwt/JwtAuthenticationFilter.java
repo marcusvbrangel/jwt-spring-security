@@ -15,6 +15,8 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 
+import static com.mvbr.jwtspringsecurity.utils.constants.MessageConstants.MSG_TOKEN_JWT_INVALIDO_OU_EXPIRADO;
+
 /*
 -------------------------------------------------------------------------------------
 Em projetos com autenticação JWT no Spring Security, é necessário implementar um filtro personalizado para:
@@ -36,8 +38,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final JwtUtil jwtUtil;
     private final UserDetailsService userDetailsService;
-
-    private static final String TOKEN_JWT_INVALIDO_OU_EXPIRADO = "Token JWT inválido ou expirado.";
 
     public JwtAuthenticationFilter(JwtUtil jwtUtil, @Lazy UserDetailsService userDetailsService) {
         this.jwtUtil = jwtUtil;
@@ -71,7 +71,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 username = jwtUtil.extractUsername(token);
             } catch (Exception e) {
                 response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-                response.getWriter().write(TOKEN_JWT_INVALIDO_OU_EXPIRADO);
+                response.getWriter().write(MSG_TOKEN_JWT_INVALIDO_OU_EXPIRADO);
                 return;
             }
         }
@@ -89,7 +89,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
             } else {
                 response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-                response.getWriter().write(TOKEN_JWT_INVALIDO_OU_EXPIRADO);
+                response.getWriter().write(MSG_TOKEN_JWT_INVALIDO_OU_EXPIRADO);
                 return;
             }
         }

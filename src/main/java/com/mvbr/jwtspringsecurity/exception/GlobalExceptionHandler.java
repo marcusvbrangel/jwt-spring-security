@@ -10,6 +10,8 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExcep
 import java.util.HashMap;
 import java.util.Map;
 
+import static com.mvbr.jwtspringsecurity.utils.constants.MessageConstants.MSG_CAMPO_ENTRADA_INVALIDO;
+
 @RestControllerAdvice
 public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
@@ -21,7 +23,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         ex.getBindingResult().getFieldErrors().forEach(error ->
                 errors.put(error.getField(), error.getDefaultMessage()));
         ValidationErrorResponse response = new ValidationErrorResponse(
-                "Erro de validação nos campos de entrada.", errors);
+                MSG_CAMPO_ENTRADA_INVALIDO, errors);
         return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
     }
 

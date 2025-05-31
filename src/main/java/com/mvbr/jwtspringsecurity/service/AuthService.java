@@ -10,6 +10,8 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import static com.mvbr.jwtspringsecurity.utils.constants.MessageConstants.MSG_EMAIL_OU_SENHA_INVALIDOS;
+
 /**
  *
  * -------------------------------------------------------------------------------------
@@ -34,23 +36,20 @@ public class AuthService {
     private final JwtUtil jwtUtil;
     private final PasswordEncoder passwordEncoder;
 
-    public static final String EMAIL_OU_SENHA_INVALIDOS = "Email ou senha inválidos";
-
     public AuthService(UserRepository userRepository, JwtUtil jwtUtil, PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
         this.jwtUtil = jwtUtil;
         this.passwordEncoder = passwordEncoder;
     }
 
-
     // Autenticação manual para login e retorno de JWT
     public AuthenticateUserResponse authenticateUser(AuthenticateUserRequest authenticateUserRequest) {
 
         Usuario usuario = userRepository.findByEmail(authenticateUserRequest.email())
-                .orElseThrow(() -> new BadCredentialsException(EMAIL_OU_SENHA_INVALIDOS));
+                .orElseThrow(() -> new BadCredentialsException(MSG_EMAIL_OU_SENHA_INVALIDOS));
 
         if (!passwordEncoder.matches(authenticateUserRequest.password(), usuario.getSenha())) {
-            throw new BadCredentialsException(EMAIL_OU_SENHA_INVALIDOS);
+            throw new BadCredentialsException(MSG_EMAIL_OU_SENHA_INVALIDOS);
         }
 
         UserDetailsImpl userDetails = new UserDetailsImpl(usuario);

@@ -14,6 +14,9 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 
+import static com.mvbr.jwtspringsecurity.utils.constants.MessageConstants.MSG_EMAIL_JA_CADASTRADO;
+import static com.mvbr.jwtspringsecurity.utils.constants.MessageConstants.MSG_USUARIO_NAO_ENCONTRADO;
+
 /**
  *
  * -------------------------------------------------------------------------------------
@@ -45,9 +48,6 @@ public class UserService implements UserDetailsService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
 
-    public static final String USUARIO_NAO_ENCONTRADO = "Usuário não encontrado: ";
-    public static final String EMAIL_JA_CADASTRADO = "Email já cadastrado";
-
     public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
@@ -59,7 +59,7 @@ public class UserService implements UserDetailsService {
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
 
         Usuario usuario = userRepository.findByEmail(username)
-                .orElseThrow(() -> new UsernameNotFoundException(USUARIO_NAO_ENCONTRADO + username));
+                .orElseThrow(() -> new UsernameNotFoundException(MSG_USUARIO_NAO_ENCONTRADO + username));
 
         return new UserDetailsImpl(usuario);
     }
@@ -67,7 +67,7 @@ public class UserService implements UserDetailsService {
     // Criação de novo usuário
     public CreateUserResponse createUser(CreateUserRequest createUserRequest) {
         if (userRepository.existsByEmail(createUserRequest.email())) {
-            throw new IllegalArgumentException(EMAIL_JA_CADASTRADO);
+            throw new IllegalArgumentException(MSG_EMAIL_JA_CADASTRADO);
         }
 
         Role role = Role.builder()
