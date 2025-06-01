@@ -9,10 +9,14 @@ import com.auth0.jwt.interfaces.DecodedJWT;
 import com.mvbr.jwtspringsecurity.config.security.spring.UserDetailsImpl;
 import com.mvbr.jwtspringsecurity.exception.TokenExpiradoException;
 import com.mvbr.jwtspringsecurity.exception.TokenInvalidoException;
+import com.mvbr.jwtspringsecurity.utils.constants.MessageConstants;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.util.Date;
+
+import static com.mvbr.jwtspringsecurity.utils.constants.MessageConstants.MSG_TOKEN_JWT_EXPIRADO;
+import static com.mvbr.jwtspringsecurity.utils.constants.MessageConstants.MSG_TOKEN_JWT_INVALIDO;
 
 /**
  *
@@ -95,13 +99,13 @@ public class JwtUtil {
     // Método privado para centralizar a verificação e decodificação do token...
     // Se o token for inválido, expirado ou adulterado, uma exceção será lançada...
     // Portanto, além de decodificar, o método já faz a validação básica do token....
-    private DecodedJWT decodedJWT(String token) {
+    private DecodedJWT decodedJWT(String token) throws TokenInvalidoException {
         try {
             return JWT.require(getAlgorithm()).withIssuer(ISSUER).build().verify(token);
         } catch (TokenExpiredException e) {
-            throw new TokenExpiradoException("Token expirado");
+            throw new TokenExpiradoException(MSG_TOKEN_JWT_EXPIRADO);
         } catch (JWTVerificationException e) {
-            throw new TokenInvalidoException("Token inválido");
+            throw new TokenInvalidoException(MSG_TOKEN_JWT_INVALIDO);
         }
     }
 

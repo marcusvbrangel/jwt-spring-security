@@ -3,6 +3,10 @@ package com.mvbr.jwtspringsecurity.utils.constants;
 public final class MessageConstants {
 
     public static final String MSG_TOKEN_JWT_INVALIDO_OU_EXPIRADO = "Token JWT inválido ou expirado.";
+    public static final String MSG_TOKEN_JWT_INVALIDO = "Token inválido";
+    public static final String MSG_TOKEN_JWT_EXPIRADO = "Token expirado";
+
+
     public static final String MSG_USUARIO_NAO_ENCONTRADO = "Usuário não encontrado: ";
     public static final String MSG_EMAIL_JA_CADASTRADO = "Email já cadastrado";
     public static final String MSG_EMAIL_OU_SENHA_INVALIDOS = "Email ou senha inválidos";

@@ -82,7 +82,7 @@ public class UserService implements UserDetailsService {
 
         Usuario savedUser = userRepository.save(usuario);
 
-        return new CreateUserResponse(savedUser.getId(), savedUser.getEmail(), savedUser.getNome(), savedUser.getRoles());
+        return new CreateUserResponse(savedUser.getEmail(), savedUser.getNome(), savedUser.getRoles());
 
     }
 
