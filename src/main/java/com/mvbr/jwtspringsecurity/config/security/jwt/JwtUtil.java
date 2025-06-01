@@ -9,7 +9,6 @@ import com.auth0.jwt.interfaces.DecodedJWT;
 import com.mvbr.jwtspringsecurity.config.security.spring.UserDetailsImpl;
 import com.mvbr.jwtspringsecurity.exception.TokenExpiradoException;
 import com.mvbr.jwtspringsecurity.exception.TokenInvalidoException;
-import com.mvbr.jwtspringsecurity.utils.constants.MessageConstants;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -51,14 +50,20 @@ import static com.mvbr.jwtspringsecurity.utils.constants.MessageConstants.MSG_TO
 @Component
 public class JwtUtil {
 
-    private static final String SECRET_KEY = "yQw1v8nK3pL6sT9zB2eR5uH7jM0xC4aFqW8dZ1tS6gV3bN5mP0rX2cE7hU9kL3oQ";
-    public static final String ISSUER = "jwt-spring-security";
+//    private static final String SECRET_KEY = "yQw1v8nK3pL6sT9zB2eR5uH7jM0xC4aFqW8dZ1tS6gV3bN5mP0rX2cE7hU9kL3oQ";
+//    public static final String ISSUER = "jwt-spring-security";
 
-    @Value("${jwt.expiration}")
+    @Value("${app.security.secretkey}")
+    private String secretKey;
+
+    @Value("${app.security.issuer}")
+    private String issuer;
+
+    @Value("${app.jwt.expiration}")
     private long expirationMillis;
 
     private Algorithm getAlgorithm() {
-        return Algorithm.HMAC256(SECRET_KEY);
+        return Algorithm.HMAC256(secretKey);
     }
 
     public String generateToken(UserDetailsImpl userDetails) {
@@ -69,7 +74,7 @@ public class JwtUtil {
                 .withClaim("id", userDetails.getId())
                 .withIssuedAt(new Date())
                 .withExpiresAt(new Date(System.currentTimeMillis() + expirationMillis))
-                .withIssuer(ISSUER)
+                .withIssuer(issuer)
                 .sign(getAlgorithm());
     }
 
@@ -101,7 +106,7 @@ public class JwtUtil {
     // Portanto, além de decodificar, o método já faz a validação básica do token....
     private DecodedJWT decodedJWT(String token) throws TokenInvalidoException {
         try {
-            return JWT.require(getAlgorithm()).withIssuer(ISSUER).build().verify(token);
+            return JWT.require(getAlgorithm()).withIssuer(issuer).build().verify(token);
         } catch (TokenExpiredException e) {
             throw new TokenExpiradoException(MSG_TOKEN_JWT_EXPIRADO);
         } catch (JWTVerificationException e) {
