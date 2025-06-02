@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -31,6 +32,7 @@ public class UserController {
     public ResponseEntity<AuthenticateUserResponse> authenticateUser(
             @Valid @RequestBody AuthenticateUserRequest authenticateUserRequest) {
         AuthenticateUserResponse token = authService.authenticateUser(authenticateUserRequest);
+        // todo: verificar se usuario esta enabled
         return new ResponseEntity<>(token, HttpStatus.OK);
     }
 
@@ -38,6 +40,12 @@ public class UserController {
     public ResponseEntity<CreateUserResponse> createUser(@Valid @RequestBody CreateUserRequest createUserRequest) {
         CreateUserResponse createUserResponse = userService.createUser(createUserRequest);
         return new ResponseEntity<>(createUserResponse, HttpStatus.CREATED);
+    }
+
+    @GetMapping("/confirm")
+    public ResponseEntity<String> confirmUser(@RequestParam("token") String token) {
+        userService.confirmUser(token);
+        return ResponseEntity.ok("Usuário confirmado com sucesso!");
     }
 
     @GetMapping("/test")

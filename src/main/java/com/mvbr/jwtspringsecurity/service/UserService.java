@@ -8,18 +8,25 @@ import com.mvbr.jwtspringsecurity.model.Role;
 import com.mvbr.jwtspringsecurity.model.Usuario;
 import com.mvbr.jwtspringsecurity.repository.RoleRepository;
 import com.mvbr.jwtspringsecurity.repository.UserRepository;
+import jakarta.transaction.Transactional;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 import static com.mvbr.jwtspringsecurity.utils.constants.MessageConstants.MSG_EMAIL_JA_CADASTRADO;
 import static com.mvbr.jwtspringsecurity.utils.constants.MessageConstants.MSG_PAPEL_USUARIO_INVALIDO;
 import static com.mvbr.jwtspringsecurity.utils.constants.MessageConstants.MSG_USUARIO_NAO_ENCONTRADO;
+import static com.mvbr.jwtspringsecurity.utils.constants.MessageConstants.MSG_TOKEN_JWT_INVALIDO;
+import static com.mvbr.jwtspringsecurity.utils.constants.MessageConstants.MSG_TOKEN_JWT_EXPIRADO;
 
 /**
  *
@@ -52,11 +59,14 @@ public class UserService implements UserDetailsService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final RoleRepository roleRepository;
+    private final EmailService emailService;
+    private static final Logger logger = LoggerFactory.getLogger(UserService.class);
 
-    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder, RoleRepository roleRepository) {
+    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder, RoleRepository roleRepository, EmailService emailService) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.roleRepository = roleRepository;
+        this.emailService = emailService;
     }
 
     // Para autenticação pelo Spring Security
@@ -71,6 +81,7 @@ public class UserService implements UserDetailsService {
     }
 
     // Criação de novo usuário
+    @Transactional
     public CreateUserResponse createUser(CreateUserRequest createUserRequest) {
 
         if (userRepository.existsByEmail(createUserRequest.email())) {
@@ -84,11 +95,79 @@ public class UserService implements UserDetailsService {
         usuario.setEmail(createUserRequest.email());
         usuario.setSenha(passwordEncoder.encode(createUserRequest.password()));
         usuario.setNome(createUserRequest.nome());
-        usuario.setRoles(List.of(role.get()));
-
+//        usuario.setRoles(List.of(role.get()));
+        usuario.setRoles(new java.util.ArrayList<>(List.of(role.get())));
         Usuario savedUser = userRepository.save(usuario);
 
+        /**
+         *
+         * -------------------------------------------------------------------------------------
+         *
+         * 1. Confirmação de criação de usuário (verificação de e-mail)
+         * Fluxo:
+         *
+         * Após cadastro, gere um token de confirmação (JWT ou UUID).
+         * Salve o token e timestamp no usuário.
+         * Envie e-mail com o link: https://suaapi.com/confirmacao?token=...
+         * Endpoint recebe o token, valida, ativa usuário.
+         *
+         * -------------------------------------------------------------------------------------
+         *
+         */
+
+        this.sendConfirmationEmail(savedUser);
+
         return new CreateUserResponse(savedUser.getEmail(), savedUser.getNome(), savedUser.getRoles());
+
+    }
+
+    @Transactional
+    public void sendConfirmationEmail(Usuario usuario) {
+
+        try {
+
+            String token = UUID.randomUUID().toString();
+
+            usuario.setConfirmationToken(token);
+            usuario.setConfirmationTokenCreatedAt(LocalDateTime.now());
+            usuario.setEnabled(false);
+
+            userRepository.save(usuario);
+
+            logger.info("Enviando e-mail de confirmação para: {}", usuario.getEmail());
+
+            emailService.send(
+                    usuario.getEmail(),
+                    "Confirme seu cadastro",
+                    "Clique aqui: http://localhost:8080/users/confirm?token=" + token
+            );
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+    }
+
+    public void confirmUser(String token) {
+
+        Usuario usuario = userRepository.findByConfirmationToken(token)
+            .orElseThrow(() -> {
+                logger.warn("Token de confirmação inválido: {}", token);
+                throw new IllegalArgumentException(MSG_TOKEN_JWT_INVALIDO);
+            });
+
+        if (usuario.getConfirmationTokenCreatedAt().isBefore(LocalDateTime.now().minusHours(24))) {
+            logger.warn("Token de confirmação expirado para usuário: {}", usuario.getEmail());
+            throw new IllegalArgumentException(MSG_TOKEN_JWT_EXPIRADO);
+        }
+
+        usuario.setEnabled(true);
+        usuario.setConfirmationToken(null);
+        usuario.setConfirmationTokenCreatedAt(null);
+
+        userRepository.save(usuario);
+
+        logger.info("Usuário confirmado com sucesso: {}", usuario.getEmail());
 
     }
 

@@ -12,6 +12,7 @@ import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.Table;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Entity
@@ -33,6 +34,10 @@ public class Usuario {
     private String sobrenome;
 
     private String telefone;
+
+    private String confirmationToken;
+    private LocalDateTime confirmationTokenCreatedAt;
+    private Boolean enabled = true;
 
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(name = "users_roles",
@@ -94,5 +99,29 @@ public class Usuario {
 
     public void setTelefone(String telefone) {
         this.telefone = telefone;
+    }
+
+    public String getConfirmationToken() {
+        return confirmationToken;
+    }
+
+    public void setConfirmationToken(String confirmationToken) {
+        this.confirmationToken = confirmationToken;
+    }
+
+    public LocalDateTime getConfirmationTokenCreatedAt() {
+        return confirmationTokenCreatedAt;
+    }
+
+    public void setConfirmationTokenCreatedAt(LocalDateTime confirmationTokenCreatedAt) {
+        this.confirmationTokenCreatedAt = confirmationTokenCreatedAt;
+    }
+
+    public Boolean getEnabled() {
+        return enabled;
+    }
+
+    public void setEnabled(Boolean enabled) {
+        this.enabled = enabled;
     }
 }

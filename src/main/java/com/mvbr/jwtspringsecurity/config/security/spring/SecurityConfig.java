@@ -53,7 +53,8 @@ public class SecurityConfig {
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
 
     public static final String [] ENDPOINTS_WITH_AUTHENTICATION_NOT_REQUIRED = {
-            "/users/login" // Url que usaremos para fazer login
+            "/users/login", // Url que usaremos para fazer login
+            "/users/confirm" // Confirmar/validar cadastro de usuario por email
     };
 
     // Endpoints que requerem autenticação para serem acessados
