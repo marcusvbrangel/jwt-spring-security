@@ -3,8 +3,10 @@ package com.mvbr.jwtspringsecurity.service;
 import com.mvbr.jwtspringsecurity.config.security.spring.UserDetailsImpl;
 import com.mvbr.jwtspringsecurity.dto.CreateUserRequest;
 import com.mvbr.jwtspringsecurity.dto.CreateUserResponse;
+import com.mvbr.jwtspringsecurity.exception.PapelUsuarioInvalidoException;
 import com.mvbr.jwtspringsecurity.model.Role;
 import com.mvbr.jwtspringsecurity.model.Usuario;
+import com.mvbr.jwtspringsecurity.repository.RoleRepository;
 import com.mvbr.jwtspringsecurity.repository.UserRepository;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -13,8 +15,10 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 import static com.mvbr.jwtspringsecurity.utils.constants.MessageConstants.MSG_EMAIL_JA_CADASTRADO;
+import static com.mvbr.jwtspringsecurity.utils.constants.MessageConstants.MSG_PAPEL_USUARIO_INVALIDO;
 import static com.mvbr.jwtspringsecurity.utils.constants.MessageConstants.MSG_USUARIO_NAO_ENCONTRADO;
 
 /**
@@ -47,10 +51,12 @@ public class UserService implements UserDetailsService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final RoleRepository roleRepository;
 
-    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder) {
+    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder, RoleRepository roleRepository) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
+        this.roleRepository = roleRepository;
     }
 
     // Para autenticação pelo Spring Security
@@ -66,19 +72,19 @@ public class UserService implements UserDetailsService {
 
     // Criação de novo usuário
     public CreateUserResponse createUser(CreateUserRequest createUserRequest) {
+
         if (userRepository.existsByEmail(createUserRequest.email())) {
             throw new IllegalArgumentException(MSG_EMAIL_JA_CADASTRADO);
         }
 
-        Role role = Role.builder()
-                .name(createUserRequest.role())
-                .build();
+        Optional<Role> role = Optional.ofNullable(roleRepository.findByName(createUserRequest.role())
+                .orElseThrow(() -> new PapelUsuarioInvalidoException(MSG_PAPEL_USUARIO_INVALIDO)));
 
         Usuario usuario = new Usuario();
         usuario.setEmail(createUserRequest.email());
         usuario.setSenha(passwordEncoder.encode(createUserRequest.password()));
         usuario.setNome(createUserRequest.nome());
-        usuario.setRoles(List.of(role));
+        usuario.setRoles(List.of(role.get()));
 
         Usuario savedUser = userRepository.save(usuario);
 

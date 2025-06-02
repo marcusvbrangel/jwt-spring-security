@@ -18,6 +18,7 @@ public final class MessageConstants {
     public static final String MSG_NOME_OBRIGATORIO = "O nome é obrigatório";
 
     public static final String MSG_PAPEL_USUARIO_OBRIGATORIO = "O papel do usuário é obrigatório";
+    public static final String MSG_PAPEL_USUARIO_INVALIDO = "Papel de usuário inválido";
 
     public static final String MSG_CAMPO_ENTRADA_INVALIDO = "Erro de validação nos campos de entrada";
 

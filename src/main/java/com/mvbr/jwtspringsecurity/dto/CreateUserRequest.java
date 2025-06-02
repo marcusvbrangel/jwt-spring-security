@@ -12,13 +12,14 @@ import static com.mvbr.jwtspringsecurity.utils.constants.MessageConstants.MSG_PA
 import static com.mvbr.jwtspringsecurity.utils.constants.MessageConstants.MSG_SENHA_OBRIGATORIA;
 
 public record CreateUserRequest(
-        @NotBlank(message = MSG_EMAIL_OBRIGATORIO)
-        @Email(message = MSG_EMAIL_INVALIDO)
-        String email,
-        @NotBlank(message = MSG_SENHA_OBRIGATORIA)
-        String password,
-        @NotBlank(message = MSG_NOME_OBRIGATORIO)
-        String nome,
-        @NotNull(message = MSG_PAPEL_USUARIO_OBRIGATORIO)
-        RoleName role
-) {}
+    @NotBlank(message = MSG_EMAIL_OBRIGATORIO)
+    @Email(message = MSG_EMAIL_INVALIDO)
+    String email,
+    @NotBlank(message = MSG_SENHA_OBRIGATORIA)
+    String password,
+    @NotBlank(message = MSG_NOME_OBRIGATORIO)
+    String nome,
+     @NotNull(message = MSG_PAPEL_USUARIO_OBRIGATORIO)
+    String role
+) {
+}
