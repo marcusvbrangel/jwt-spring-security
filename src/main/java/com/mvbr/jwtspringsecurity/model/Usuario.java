@@ -1,6 +1,5 @@
 package com.mvbr.jwtspringsecurity.model;
 
-import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -37,7 +36,7 @@ public class Usuario {
 
     private String confirmationToken;
     private LocalDateTime confirmationTokenCreatedAt;
-    private Boolean enabled = true;
+    private boolean enabled;
 
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(name = "users_roles",
@@ -117,11 +116,11 @@ public class Usuario {
         this.confirmationTokenCreatedAt = confirmationTokenCreatedAt;
     }
 
-    public Boolean getEnabled() {
+    public boolean getEnabled() {
         return enabled;
     }
 
-    public void setEnabled(Boolean enabled) {
+    public void setEnabled(boolean enabled) {
         this.enabled = enabled;
     }
 }

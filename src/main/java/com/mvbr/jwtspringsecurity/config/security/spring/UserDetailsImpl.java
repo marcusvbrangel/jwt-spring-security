@@ -1,7 +1,6 @@
 package com.mvbr.jwtspringsecurity.config.security.spring;
 
 import com.mvbr.jwtspringsecurity.model.Usuario;
-import lombok.Getter;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -49,8 +48,6 @@ import java.util.stream.Collectors;
  *
  */
 
-@Getter
-//@Builder
 public class UserDetailsImpl implements UserDetails {
 
     private final Long id;
@@ -60,6 +57,7 @@ public class UserDetailsImpl implements UserDetails {
     private final String nome;
     private final String sobrenome;
     private final String telefone;
+    private final boolean enabled;
 
     public UserDetailsImpl(Usuario usuario) {
         this.id = usuario.getId();
@@ -72,7 +70,28 @@ public class UserDetailsImpl implements UserDetails {
                 .stream()
                 .map(role -> new SimpleGrantedAuthority(role.getName().name()))
                 .collect(Collectors.toList());
+        this.enabled = usuario.getEnabled();
 
+    }
+
+    public Long getId() {
+        return this.id;
+    }
+
+    public String getEmail() {
+        return this.email;
+    }
+
+    public String getNome() {
+        return this.nome;
+    }
+
+    public String getSobrenome() {
+        return sobrenome;
+    }
+
+    public String getTelefone() {
+        return telefone;
     }
 
     @Override
@@ -107,7 +126,7 @@ public class UserDetailsImpl implements UserDetails {
 
     @Override
     public boolean isEnabled() {
-        return true;
+        return this.enabled;
     }
 
 }

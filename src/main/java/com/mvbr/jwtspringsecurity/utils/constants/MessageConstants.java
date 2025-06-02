@@ -6,10 +6,10 @@ public final class MessageConstants {
     public static final String MSG_TOKEN_JWT_INVALIDO = "Token inválido";
     public static final String MSG_TOKEN_JWT_EXPIRADO = "Token expirado";
 
-
     public static final String MSG_USUARIO_NAO_ENCONTRADO = "Usuário não encontrado: ";
     public static final String MSG_EMAIL_JA_CADASTRADO = "Email já cadastrado";
     public static final String MSG_EMAIL_OU_SENHA_INVALIDOS = "Email ou senha inválidos";
+    public static final String MSG_EMAIL_NAO_VERIFICADO = "Usuário ainda não confirmou o e-mail";
 
     public static final String MSG_EMAIL_OBRIGATORIO = "O e-mail é obrigatório";
     public static final String MSG_EMAIL_INVALIDO = "E-mail inválido";

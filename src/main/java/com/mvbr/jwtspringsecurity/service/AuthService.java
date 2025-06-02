@@ -10,6 +10,7 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import static com.mvbr.jwtspringsecurity.utils.constants.MessageConstants.MSG_EMAIL_NAO_VERIFICADO;
 import static com.mvbr.jwtspringsecurity.utils.constants.MessageConstants.MSG_EMAIL_OU_SENHA_INVALIDOS;
 
 /**
@@ -50,6 +51,10 @@ public class AuthService {
 
         if (!passwordEncoder.matches(authenticateUserRequest.password(), usuario.getSenha())) {
             throw new BadCredentialsException(MSG_EMAIL_OU_SENHA_INVALIDOS);
+        }
+
+        if (!usuario.getEnabled()) {
+            throw new BadCredentialsException(MSG_EMAIL_NAO_VERIFICADO);
         }
 
         UserDetailsImpl userDetails = new UserDetailsImpl(usuario);
