@@ -38,6 +38,11 @@ public class Usuario {
     private LocalDateTime confirmationTokenCreatedAt;
     private boolean enabled;
 
+    @Column(nullable = false, columnDefinition = "integer default 0")
+    private int failedLoginAttempts;
+    private LocalDateTime lastFailedLoginAt;
+    private LocalDateTime lockedUntil;
+
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(name = "users_roles",
                 joinColumns = @JoinColumn(name = "user_id"),
@@ -122,5 +127,29 @@ public class Usuario {
 
     public void setEnabled(boolean enabled) {
         this.enabled = enabled;
+    }
+
+    public int getFailedLoginAttempts() {
+        return failedLoginAttempts;
+    }
+
+    public void setFailedLoginAttempts(int failedLoginAttempts) {
+        this.failedLoginAttempts = failedLoginAttempts;
+    }
+
+    public LocalDateTime getLastFailedLoginAt() {
+        return lastFailedLoginAt;
+    }
+
+    public void setLastFailedLoginAt(LocalDateTime lastFailedLoginAt) {
+        this.lastFailedLoginAt = lastFailedLoginAt;
+    }
+
+    public LocalDateTime getLockedUntil() {
+        return lockedUntil;
+    }
+
+    public void setLockedUntil(LocalDateTime lockedUntil) {
+        this.lockedUntil = lockedUntil;
     }
 }

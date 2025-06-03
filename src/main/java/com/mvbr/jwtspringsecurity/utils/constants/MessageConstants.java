@@ -22,4 +22,6 @@ public final class MessageConstants {
 
     public static final String MSG_CAMPO_ENTRADA_INVALIDO = "Erro de validação nos campos de entrada";
 
+    public static final String MSG_USUARIO_BLOQUEADO_ATE = "Usuário bloqueado até ";
+
 }

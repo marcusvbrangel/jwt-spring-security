@@ -48,6 +48,12 @@ public class UserController {
         return ResponseEntity.ok("Usuário confirmado com sucesso!");
     }
 
+    @GetMapping("/unlock")
+    public ResponseEntity<String> unlockUser(@RequestParam("email") String email) {
+        authService.unlockUser(email);
+        return ResponseEntity.ok("Usuário desbloqueado com sucesso!");
+    }
+
     @GetMapping("/test")
     public ResponseEntity<String> getAuthenticationTest() {
         return new ResponseEntity<>("Autenticado com sucesso", HttpStatus.OK);
