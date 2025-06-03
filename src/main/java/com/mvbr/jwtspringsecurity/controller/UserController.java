@@ -4,6 +4,7 @@ import com.mvbr.jwtspringsecurity.dto.AuthenticateUserRequest;
 import com.mvbr.jwtspringsecurity.dto.AuthenticateUserResponse;
 import com.mvbr.jwtspringsecurity.dto.CreateUserRequest;
 import com.mvbr.jwtspringsecurity.dto.CreateUserResponse;
+import com.mvbr.jwtspringsecurity.dto.ResetPasswordRequest;
 import com.mvbr.jwtspringsecurity.service.AuthService;
 import com.mvbr.jwtspringsecurity.service.UserService;
 import jakarta.validation.Valid;
@@ -15,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.PathVariable;
 
 @RestController
 @RequestMapping("/users")
@@ -52,6 +54,18 @@ public class UserController {
     public ResponseEntity<String> unlockUser(@RequestParam("email") String email) {
         authService.unlockUser(email);
         return ResponseEntity.ok("Usuário desbloqueado com sucesso!");
+    }
+
+    @PostMapping("/redefinir")
+    public ResponseEntity<String> redefinirSenha(@Valid @RequestBody ResetPasswordRequest request) {
+        authService.resetPassword(request.getToken(), request.getNovaSenha());
+        return ResponseEntity.ok("Senha redefinida com sucesso!");
+    }
+
+    @PostMapping("/recuperar-senha")
+    public ResponseEntity<String> recuperarSenha(@RequestParam("email") String email) {
+        authService.startPasswordReset(email);
+        return ResponseEntity.ok("Se o e-mail existir, as instruções de redefinição foram enviadas.");
     }
 
     @GetMapping("/test")

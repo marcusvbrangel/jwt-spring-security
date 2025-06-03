@@ -43,6 +43,9 @@ public class Usuario {
     private LocalDateTime lastFailedLoginAt;
     private LocalDateTime lockedUntil;
 
+    private String passwordResetToken;
+    private LocalDateTime passwordResetExpiresAt;
+
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(name = "users_roles",
                 joinColumns = @JoinColumn(name = "user_id"),
@@ -151,5 +154,21 @@ public class Usuario {
 
     public void setLockedUntil(LocalDateTime lockedUntil) {
         this.lockedUntil = lockedUntil;
+    }
+
+    public String getPasswordResetToken() {
+        return passwordResetToken;
+    }
+
+    public void setPasswordResetToken(String passwordResetToken) {
+        this.passwordResetToken = passwordResetToken;
+    }
+
+    public LocalDateTime getPasswordResetExpiresAt() {
+        return passwordResetExpiresAt;
+    }
+
+    public void setPasswordResetExpiresAt(LocalDateTime passwordResetExpiresAt) {
+        this.passwordResetExpiresAt = passwordResetExpiresAt;
     }
 }

@@ -55,7 +55,9 @@ public class SecurityConfig {
     public static final String [] ENDPOINTS_WITH_AUTHENTICATION_NOT_REQUIRED = {
             "/users/login", // Url que usaremos para fazer login
             "/users/confirm", // Confirmar/validar cadastro de usuario por email
-            "/users/unlock" // Desbloquear usuario bloqueado por varias tentativas e erros
+            "/users/unlock", // Desbloquear usuario bloqueado por varias tentativas e erros
+            "/users/redefinir", // Solicitar redefinir senha
+            "/users/recuperar-senha" // Trocar a senha
     };
 
     // Endpoints que requerem autenticação para serem acessados

@@ -153,4 +153,35 @@ public class AuthService {
         userRepository.save(usuario);
     }
 
+    public void startPasswordReset(String email) {
+
+        Usuario usuario = userRepository.findByEmail(email)
+                .orElseThrow(() -> new org.springframework.security.core.userdetails.UsernameNotFoundException("Usuário não encontrado"));
+
+        String token = java.util.UUID.randomUUID().toString();
+
+        usuario.setPasswordResetToken(token);
+        usuario.setPasswordResetExpiresAt(java.time.LocalDateTime.now().plusHours(1));
+
+        userRepository.save(usuario);
+
+        emailService.send(email, "Recupere sua senha", "Clique: http://localhost:8080/users/redefinir-senha?token=" + token);
+    }
+
+    public void resetPassword(String token, String novaSenha) {
+
+        Usuario usuario = userRepository.findByPasswordResetToken(token)
+                .orElseThrow(() -> new IllegalArgumentException("Token inválido"));
+
+        if (usuario.getPasswordResetExpiresAt() == null || usuario.getPasswordResetExpiresAt().isBefore(java.time.LocalDateTime.now())) {
+            throw new IllegalArgumentException("Token expirado!");
+        }
+
+        usuario.setSenha(passwordEncoder.encode(novaSenha));
+        usuario.setPasswordResetToken(null);
+        usuario.setPasswordResetExpiresAt(null);
+
+        userRepository.save(usuario);
+    }
+
 }
