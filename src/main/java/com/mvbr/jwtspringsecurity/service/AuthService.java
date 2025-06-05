@@ -7,6 +7,7 @@ import com.mvbr.jwtspringsecurity.dto.AuthenticateUserResponse;
 import com.mvbr.jwtspringsecurity.model.Usuario;
 import com.mvbr.jwtspringsecurity.repository.UserRepository;
 import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -39,7 +40,8 @@ public class AuthService {
     private final PasswordEncoder passwordEncoder;
     private final EmailService emailService;
 
-    public AuthService(UserRepository userRepository, JwtUtil jwtUtil, PasswordEncoder passwordEncoder, EmailService emailService) {
+    public AuthService(UserRepository userRepository, JwtUtil jwtUtil, PasswordEncoder passwordEncoder,
+                       EmailService emailService) {
         this.userRepository = userRepository;
         this.jwtUtil = jwtUtil;
         this.passwordEncoder = passwordEncoder;
@@ -156,7 +158,7 @@ public class AuthService {
     public void startPasswordReset(String email) {
 
         Usuario usuario = userRepository.findByEmail(email)
-                .orElseThrow(() -> new org.springframework.security.core.userdetails.UsernameNotFoundException("Usuário não encontrado"));
+                .orElseThrow(() -> new UsernameNotFoundException("Usuário não encontrado"));
 
         String token = java.util.UUID.randomUUID().toString();
 
@@ -173,7 +175,8 @@ public class AuthService {
         Usuario usuario = userRepository.findByPasswordResetToken(token)
                 .orElseThrow(() -> new IllegalArgumentException("Token inválido"));
 
-        if (usuario.getPasswordResetExpiresAt() == null || usuario.getPasswordResetExpiresAt().isBefore(java.time.LocalDateTime.now())) {
+        if (usuario.getPasswordResetExpiresAt() == null ||
+                usuario.getPasswordResetExpiresAt().isBefore(java.time.LocalDateTime.now())) {
             throw new IllegalArgumentException("Token expirado!");
         }
 
